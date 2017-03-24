@@ -1,38 +1,34 @@
-function Channel(capacity) {
+function create(capacity) {
   const queue = [];
   const puts = [];
   const takes = [];
 
   let closed = false;
 
-  Object.defineProperty(this, 'length', { get: function () {
-    return queue.length;
-  }});
+  const fn = function (value) {
+    if (value) {
+      return new Promise(function (resolve, reject) {
+        if (closed === true) {
+          reject();
+          return;
+        };
 
-  this.put = function (value) {
-    return new Promise(function (resolve, reject) {
-      if (closed === true) {
-        reject();
-        return;
-      };
+        if (value === null) closed = true;
 
-      if (value === null) closed = true;
+        if (queue.length === capacity) {
+          puts.push(function () {
+            resolve(queue.push(value));
+            if (takes.length) takes.shift()();
+          });
 
-      if (queue.length === capacity) {
-        puts.push(function () {
-          resolve(queue.push(value));
-          if (takes.length) takes.shift()();
-        });
+          return;
+        }
 
-        return;
-      }
+        resolve(queue.push(value));
+        if (takes.length) takes.shift()();
+      });
+    }
 
-      resolve(queue.push(value));
-      if (takes.length) takes.shift()();
-    });
-  };
-
-  this.take = function () {
     return new Promise(function (resolve) {
       if (!queue.length) {
         if (closed) {
@@ -53,7 +49,21 @@ function Channel(capacity) {
 
       return;
     });
-  };
+  }
 
-  return this;
+  Object.defineProperty(fn, 'size', { get: function () {
+    return queue.length;
+  }});
+
+  Object.defineProperty(fn, 'closed', { get: function () {
+    return closed;
+  }});
+
+  fn.close = function () { return fn(null); };
+
+  return fn;
 };
+
+module.exports = create;
+
+

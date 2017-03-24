@@ -10,3 +10,4 @@
 
 ## License
 
+&bull; **MIT** &copy; axdg ([axdg@dfant.asia](mailto:axdg@dfant.asia)), 2107 &bull;
