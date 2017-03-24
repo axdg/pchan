@@ -1,4 +1,4 @@
-function create(capacity) {
+function pchan(capacity) {
   const queue = [];
   const puts = [];
   const takes = [];
@@ -64,6 +64,6 @@ function create(capacity) {
   return fn;
 };
 
-module.exports = create;
+module.exports = pchan;
 
 
