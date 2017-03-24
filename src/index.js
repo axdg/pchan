@@ -6,7 +6,7 @@ function pchan(capacity) {
   let closed = false;
 
   const fn = function (value) {
-    if (value) {
+    if (typeof value !== 'undefined') {
       return new Promise(function (resolve, reject) {
         if (closed === true) {
           reject();
