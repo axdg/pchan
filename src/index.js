@@ -83,20 +83,22 @@ module.exports = module.exports.default = function (capacity = 1) {
 }
 
 module.exports.range = function (chan, fn) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      while (true) {
-        const value = await chan()
-        if (value === null) {
-          resolve()
-          return
-        }
+  return new Promise((resolve, reject) => {
+    (async function () {
+      try {
+        while (true) {
+          const value = await chan()
+          if (value === null) {
+            resolve()
+            return
+          }
 
-        fn(value)
+          fn(value)
+        }
+      } catch (err) {
+        reject(err)
       }
-    } catch (err) {
-      reject(err)
-    }
+    })()
   })
 }
 

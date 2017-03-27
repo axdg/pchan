@@ -3,6 +3,8 @@ const test = require('ava')
 
 const channel = require('../src/index')
 
+const {range, close} = channel
+
 test('instantiation and promise return', t => {
   const chan = channel(1)
 
@@ -80,5 +82,31 @@ test('send and recieve queueing', async t => {
   through.forEach(i => input(i))
 
   const values = await processed(output)
+  t.true(JSON.stringify(values) === JSON.stringify([1, 2, 3, 4, 5]))
+})
+
+test('ranging over a channel, closing a channel', async t => {
+  const input = channel(1)
+  const output = channel(1)
+  const ranger = async function () {
+    await range(input, v => output(v + 1))
+    close(output)
+
+    return Promise.resolve()
+  }
+
+  const buffer = async function () {
+    const _buffer = []
+    await range(output, v => _buffer.push(v))
+
+    return Promise.resolve(_buffer)
+  }
+
+  ranger()
+
+  const through = [0, 1, 2, 3, 4, null]
+  through.forEach(i => input(i))
+
+  const values = await buffer()
   t.true(JSON.stringify(values) === JSON.stringify([1, 2, 3, 4, 5]))
 })
