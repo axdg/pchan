@@ -13,20 +13,20 @@ const make = module.exports = function (capacity = 1) {
   let closed = false;
 
   const fn = function (value) {
-    if (typeof value !== 'undefined') {
+    if (value !== undefined) {
       return new Promise(function (resolve, reject) {
         if (closed === true) return reject()
         if (value === null) closed = true
         if (queue.length === capacity) {
           return puts.push(function () {
-            if (takes.length) takes.shift()()
             queue.push(value);
+            if (takes.length) takes.shift()()
             return resolve()
           })
         }
 
-        if (takes.length) takes.shift()()
         queue.push(value)
+        if (takes.length) takes.shift()()
         return resolve()
       });
     }

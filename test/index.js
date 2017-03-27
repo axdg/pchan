@@ -40,14 +40,19 @@ test('channel size', async function (t) {
   t.true(chan.closed === true)
 })
 
+const sleep = function (ms) {
+  return new Promise(function (resolve) {
+    setTimeout(() => resolve(), ms)
+  })
+}
+
 const thread = function (output) {
   return async function (input) {
     while (true) {
       const value = await input()
-      console.log(value);
       if (value === null) {
-        output(null)
-        return Promise.resolve()
+        await output(null)
+        break
       }
 
       await output(value + 1)
@@ -61,8 +66,8 @@ const processed = async function (output) {
   const values = []
 
   while (true) {
-    const value = await output()
-    if (value === null) break
+    const value = await output ()
+    if (value === null) return Promise.resolve(values)
     values.push(value)
   }
 
@@ -75,11 +80,9 @@ test('send and recieve queueing', async function (t) {
 
   thread(output)(input)
 
-  input(0)
-  input(1)
-  input(2)
-  input(null)
+  const through = [0, 1, 2, 3, 4, null]
+  through.forEach(i => input(i))
 
   const values = await processed(output)
-  console.log(values)
+  t.true(JSON.stringify(values) === JSON.stringify([1, 2, 3, 4, 5]))
 })
