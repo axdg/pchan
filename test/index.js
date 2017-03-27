@@ -1,20 +1,21 @@
+/* eslint-disable no-constant-condition, no-await-in-loop */
 const test = require('ava')
 
 const channel = require('../src/index')
 
-test('instantiation and promise return', function (t) {
+test('instantiation and promise return', t => {
   const chan = channel(1)
 
   const put = chan('x')
 
   t.true(put instanceof Promise)
 
-  const take = chan();
+  const take = chan()
 
   t.true(take instanceof Promise)
-});
+})
 
-test('channel size', async function (t) {
+test('channel size', async t => {
   const chan = channel(2)
 
   t.true(chan.size === 0)
@@ -33,18 +34,12 @@ test('channel size', async function (t) {
 
   t.true(chan.size === 0)
 
-  t.true(chan.closed === false)
+  t.true(chan.open === true)
 
   await chan.close()
 
-  t.true(chan.closed === true)
+  t.true(chan.open === false)
 })
-
-const sleep = function (ms) {
-  return new Promise(function (resolve) {
-    setTimeout(() => resolve(), ms)
-  })
-}
 
 const thread = function (output) {
   return async function (input) {
@@ -59,24 +54,25 @@ const thread = function (output) {
     }
 
     return Promise.resolve()
-  };
+  }
 }
 
 const processed = async function (output) {
   const values = []
 
   while (true) {
-    const value = await output ()
-    if (value === null) return Promise.resolve(values)
+    const value = await output()
+    if (value === null) {
+      return Promise.resolve(values)
+    }
+
     values.push(value)
   }
+}
 
-  return Promise.resolve(values)
-};
-
-test('send and recieve queueing', async function (t) {
-  const input = channel(1);
-  const output = channel(1);
+test('send and recieve queueing', async t => {
+  const input = channel(1)
+  const output = channel(1)
 
   thread(output)(input)
 

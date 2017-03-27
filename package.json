@@ -20,6 +20,7 @@
   "xo": {
     "space": true,
     "semicolon": false,
+    "prefer-arrow-callback": false,
     "envs": [
       "node",
       "browser"
