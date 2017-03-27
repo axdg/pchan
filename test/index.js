@@ -3,51 +3,83 @@ const test = require('ava')
 const channel = require('../src/index')
 
 test('instantiation and promise return', function (t) {
-  const chan = channel(1);
+  const chan = channel(1)
 
-  const put = chan('x');
+  const put = chan('x')
+
+  t.true(put instanceof Promise)
+
   const take = chan();
 
-  t.true(put instanceof Promise);
-  t.true(take instanceof Promise);
+  t.true(take instanceof Promise)
 });
 
-test('ability to queue async operations', async function (t) {
+test('channel size', async function (t) {
+  const chan = channel(2)
+
+  t.true(chan.size === 0)
+
+  t.true(await chan('x') === undefined)
+  t.true(await chan('x') === undefined)
+
+  t.true(chan.size === 2)
+
+  const values = []
+
+  values.push(await chan())
+  values.push(await chan())
+
+  t.true(JSON.stringify(values) === JSON.stringify(['x', 'x']))
+
+  t.true(chan.size === 0)
+
+  t.true(chan.closed === false)
+
+  await chan.close()
+
+  t.true(chan.closed === true)
+})
+
+const thread = function (output) {
+  return async function (input) {
+    while (true) {
+      const value = await input()
+      console.log(value);
+      if (value === null) {
+        output(null)
+        return Promise.resolve()
+      }
+
+      await output(value + 1)
+    }
+
+    return Promise.resolve()
+  };
+}
+
+const processed = async function (output) {
+  const values = []
+
+  while (true) {
+    const value = await output()
+    if (value === null) break
+    values.push(value)
+  }
+
+  return Promise.resolve(values)
+};
+
+test('send and recieve queueing', async function (t) {
   const input = channel(1);
   const output = channel(1);
 
-  async function worker(input, output) {
-    let done = false
-    while (!done) {
-      console.log('running at this point');
-      const value = await input()
-      if (value === null) done = true;
-      output(value)
-    }
-  }
+  thread(output)(input)
 
-  async function pusher(output) {
-    let done = false
-    const accumulated = []
-
-    while (!done) {
-      const value = await output()
-      if (value === null) done = true;
-      accumulated.push(value)
-    }
-
-    return Promise.resolve(accumulated);
-  }
-
+  input(0)
   input(1)
   input(2)
+  input(null)
 
-  worker(input, output)
-
-  const accumulated = await pusher(output)
-
-  t.true(typeof accumulated === 'object')
-  t.true(Array.isArray(accumulated))
+  const values = await processed(output)
+  console.log(values)
 })
-
-

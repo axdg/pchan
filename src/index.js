@@ -1,69 +1,66 @@
-function pchan(capacity) {
-  const queue = [];
-  const puts = [];
-  const takes = [];
+const make = module.exports = function (capacity = 1) {
+  /**
+   * TODO: The value that is passed into the channel
+   * as a capacity actually needs to be type checked,
+   * it needs to be a positive integer (defaulting
+   * to one).
+   */
+
+  const queue = []
+  const puts = []
+  const takes = []
 
   let closed = false;
 
   const fn = function (value) {
     if (typeof value !== 'undefined') {
       return new Promise(function (resolve, reject) {
-        if (closed === true) {
-          reject();
-          return;
-        };
-
-        if (value === null) closed = true;
-
+        if (closed === true) return reject()
+        if (value === null) closed = true
         if (queue.length === capacity) {
-          puts.push(function () {
-            resolve(queue.push(value));
-            if (takes.length) takes.shift()();
-          });
-
-          return;
+          return puts.push(function () {
+            if (takes.length) takes.shift()()
+            queue.push(value);
+            return resolve()
+          })
         }
 
-        resolve(queue.push(value));
-        if (takes.length) takes.shift()();
+        if (takes.length) takes.shift()()
+        queue.push(value)
+        return resolve()
       });
     }
 
     return new Promise(function (resolve) {
       if (!queue.length) {
-        if (closed) {
-          resolve(null);
-          return;
-        }
-
-        takes.push(function () {
-          resolve(queue.shift());
-          if (puts.length) puts.shift()();
-        });
-
-        return;
+        if (closed) return resolve(null)
+        return takes.push(function () {
+          if (puts.length) puts.shift()()
+          return resolve(queue.shift())
+        })
       }
 
-      resolve(queue.unshift());
-      if (puts.length) puts.shift()();
-
-      return;
-    });
+      if (puts.length) puts.shift()()
+      return resolve(queue.shift())
+    })
   }
 
-  Object.defineProperty(fn, 'size', { get: function () {
-    return queue.length;
-  }});
+    Object.defineProperty(fn, 'size', { get: function () {
+      return queue.length
+    }});
 
-  Object.defineProperty(fn, 'closed', { get: function () {
-    return closed;
-  }});
+    Object.defineProperty(fn, 'closed', { get: function () {
+      return closed
+    }});
 
-  fn.close = function () { return fn(null); };
+    fn.close = function () { return fn(null) }
 
-  return fn;
+    return fn;
 };
 
-module.exports = pchan;
+module.exports.range = function () {}
+module.exports.send = function () {}
+module.exports.receive = function () {}
+module.exports.close = function () {}
 
 

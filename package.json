@@ -7,7 +7,7 @@
     "src"
   ],
   "scripts": {
-    "test": "test:lint && test:node",
+    "test": "npm run test:lint && npm run test:node",
     "test:lint": "xo",
     "test:node": "ava"
   },
