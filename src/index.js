@@ -8,8 +8,8 @@ module.exports = module.exports.default = function (capacity = 1) {
    */
 
   const queue = []
-  const puts = []
-  const takes = []
+  const inbound = []
+  const outbound = []
 
   let closed = false
 
@@ -25,10 +25,10 @@ module.exports = module.exports.default = function (capacity = 1) {
         }
 
         if (queue.length === capacity) {
-          return puts.push(() => {
+          return inbound.push(() => {
             queue.push(value)
-            if (takes.length > 0) {
-              takes.shift()()
+            if (outbound.length > 0) {
+              outbound.shift()()
             }
 
             return resolve()
@@ -36,8 +36,8 @@ module.exports = module.exports.default = function (capacity = 1) {
         }
 
         queue.push(value)
-        if (takes.length > 0) {
-          takes.shift()()
+        if (outbound.length > 0) {
+          outbound.shift()()
         }
 
         return resolve()
@@ -50,17 +50,17 @@ module.exports = module.exports.default = function (capacity = 1) {
           return resolve(null)
         }
 
-        return takes.push(() => {
-          if (puts.length > 0) {
-            puts.shift()()
+        return outbound.push(() => {
+          if (inbound.length > 0) {
+            inbound.shift()()
           }
 
           return resolve(queue.shift())
         })
       }
 
-      if (puts.length > 0) {
-        puts.shift()()
+      if (inbound.length > 0) {
+        inbound.shift()()
       }
 
       return resolve(queue.shift())
