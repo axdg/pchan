@@ -50,9 +50,17 @@ receiver(chan).then(data => console.log(data))
 
  - **capacity** (`number`) - the size of the channels buffer.
 
+Returns a `channel` that will buffer `capacity` value(s).
+
 ### channel([*value*])
 
  - **value** (`mixed`) - the value to send into the channel.
+
+**sending:** calling `channel` with `value` will send that value into the channel, and return a promise that resolves `undefined` when space for that value is available in the internal buffer.
+
+**closing:** calling `channel` with the value `null` will close the channel; any subsequent sends will throw an error, but receives can continue until indefinitely, and will resolve with any remaining internally buffered values, or `null` if none remain.
+
+**receving:** when `channel` is called with no arguments it will return a promise that resolves when a value from the `channel`'s internal buffer is avaiable.
 
 ### channel.close()
 
@@ -62,6 +70,8 @@ A convinience function used to close the channel, equivalent to `channel(null)`.
 
  - **channel** (`function`) - the channel to range over.
  - **fn** (`function`) - the callback function (called for each received value).
+
+Calling `range` with a `channel` and a callback function (`fn`) will continue to receive from `channel`, passing each value to the supplied callback until the channel is closed. 
 
 ## License
 
