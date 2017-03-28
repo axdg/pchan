@@ -1,9 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies, import/no-unresolved, no-cond-assign */
-const pchan = require('pchan')
+const make = require('pchan')
 
-const {range, close} = pchan
+const {range, close} = make
 
-async function sender(channel, data) {
+function sender(channel, data) {
   const values = [...data]
 
   let value
@@ -21,7 +21,7 @@ async function receiver(channel) {
   return values
 }
 
-const chan = pchan(1)
+const chan = make(1)
 const data = [1, 2, 3, 4, 5]
 
 sender(chan, data)
