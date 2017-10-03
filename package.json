@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npm run test:lint && npm run test:node",
     "test:lint": "xo",
-    "test:node": "ava"
+    "test:node": "ava --verbose"
   },
   "author": "axdg <axdg@dfant.asia>",
   "license": "MIT",
