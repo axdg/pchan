@@ -2,7 +2,7 @@
 
 > JS channels implementation... for async fun.
 
-[![CircleCI](https://circleci.com/gh/axdg/pchan.svg?style=shield)](https://circleci.com/gh/axdg/pchan)
+[![CircleCI](https://circleci.com/gh/axdg/pchan.svg?style=shield)](https://circleci.com/gh/axdg/pchan) [![Build Status](https://semaphoreci.com/api/v1/axdg/pchan/branches/master/shields_badge.svg)](https://semaphoreci.com/axdg/pchan)
 
 ## About
 

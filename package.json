@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "JS channels implementation... for async fun",
   "main": "./src/index.js",
+  "repository": "https://github.com/axdg/pchan",
   "files": [
     "src"
   ],
